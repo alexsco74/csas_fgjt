@@ -1,0 +1,85 @@
+<?php
+
+/**
+ * @file
+ * Csas field group jquery tabs
+ */
+
+/**
+ * Implements hook_field_group_pre_render().
+ *
+ * Function that fungates as last resort to alter the pre_render build.
+ */
+function csas_fgjt_field_group_pre_render_alter(&$element, $group, &$form) {
+
+  if ($group->format_type == 'htabs') {
+    $element['#type'] = 'csas_fgjt_horizontal_tabs';
+    $element['#theme_wrappers'] = array('csas_fgjt_horizontal_tabs');
+    unset($element['#attached']);
+
+    //$element['#attached']['library'][] = array('field_group', 'horizontal-tabs');
+    //$element['#theme_wrappers'] = array('my_horizontal_tab');
+  }
+  elseif ($group->format_type == 'htab') {
+    $element['#type'] = 'container';
+    $tab_id = drupal_html_id($group->group_name);
+    $element['#attributes']['id'] = $tab_id;
+  }
+}
+
+/**
+ * Implements hook_element_info().
+ */
+function csas_fgjt_element_info() {
+  $types['csas_fgjt_horizontal_tabs'] = array(
+    '#theme_wrappers' => array('csas_fgjt_horizontal_tabs'),
+    '#default_tab' => '',
+    '#process' => array('form_process_csas_fgjt_horizontal_tabs'),
+  );
+  return $types;
+}
+
+/**
+ * Creates a group formatted as horizontal tabs.
+ * This function will never be callable from within field_group rendering. Other
+ * modules using #type horizontal_tabs will have the benefit of this processor.
+ *
+ * @param $element
+ *   An associative array containing the properties and children of the
+ *   fieldset.
+ * @param $form_state
+ *   The $form_state array for the form this horizontal tab widget belongs to.
+ * @return
+ *   The processed element.
+ */
+function form_process_csas_fgjt_horizontal_tabs($element, &$form_state) {
+  $element['group'] = array(
+    '#type' => 'container',
+    '#theme_wrappers' => array(),
+    '#parents' => $element['#parents'],
+  );
+  $name = implode('__', $element['#parents']);
+  if (isset($form_state['values'][$name . '__active_tab'])) {
+    $element['#default_tab'] = $form_state['values'][$name . '__active_tab'];
+  }
+  $element[$name . '__active_tab'] = array(
+    '#type' => 'hidden',
+    '#default_value' => $element['#default_tab'],
+    '#attributes' => array(
+      'class' => array('horizontal-tabs-active-tab')
+    ),
+  );
+  return $element;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function csas_fgjt_theme() {
+  return array(
+    'csas_fgjt_horizontal_tabs' => array(
+      'render element' => 'element',
+      'file' => 'csas_fgjt.theme.inc'
+    ),
+  );
+}

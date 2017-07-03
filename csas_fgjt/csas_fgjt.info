@@ -1,0 +1,6 @@
+name = Csas field group jquery tabs
+description = Csas field group jquery ui tabs (http://jqueryui.com/tabs/)
+package = Csas
+version = VERSION
+core = 7.x
+dependencies[]= field_group
